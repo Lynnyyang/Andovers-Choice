@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { HouseSample } from '@/types';
 import { generateHouseData, calculateBalanceScore, calculateEfficiencyScore } from '@/utils/dataGeneration';
+import { D3Map } from '@/components/D3Map';
 import { 
   MapPin, 
   DollarSign, 
@@ -157,78 +158,19 @@ export const DataCollectionScene: React.FC<DataCollectionSceneProps> = ({
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-center">北安德沃镇地图</h2>
           <p className="text-sm text-muted-foreground text-center">
-            点击不同区域收集房屋数据 • 每个样本成本：${sampleCost}
+            点击房屋收集数据 • 每个样本成本：${sampleCost}
           </p>
           
-          <div className="relative bg-gradient-to-br from-green-900/20 to-blue-900/20 rounded-lg h-96 overflow-hidden">
-            {/* Map Background */}
-            <div className="absolute inset-0 opacity-20">
-              <div className="w-full h-full bg-gradient-to-br from-green-500 to-blue-500"></div>
-            </div>
-            
-            {/* Incinerator Location */}
-            <div className="absolute top-1/2 left-1/3 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-8 h-8 bg-destructive rounded-full animate-pulse flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-full"></div>
-              </div>
-              <div className="text-xs text-center mt-1 text-destructive font-semibold">
-                焚化炉
-              </div>
-            </div>
-            
-            {/* Near Region */}
-            <button
-              onClick={() => handleRegionClick('near')}
-              disabled={budget < sampleCost}
-              className={`
-                absolute top-1/4 left-1/4 w-32 h-32 rounded-full border-2 border-dashed
-                flex items-center justify-center text-center transition-all duration-300
-                ${selectedRegion === 'near' ? 'bg-primary/30 border-primary scale-110' : 
-                  budget < sampleCost ? 'border-muted-foreground/30 cursor-not-allowed' :
-                  'border-warning hover:bg-warning/20 hover:border-warning cursor-pointer'}
-              `}
-            >
-              <div className="space-y-1">
-                <MapPin className="w-6 h-6 mx-auto" />
-                <div className="text-xs font-semibold">处理组区域</div>
-                <div className="text-xs">(焚化炉2英里内)</div>
-                <div className="text-xs font-bold">{nearSamples.length} 样本</div>
-              </div>
-            </button>
-            
-            {/* Far Region */}
-            <button
-              onClick={() => handleRegionClick('far')}
-              disabled={budget < sampleCost}
-              className={`
-                absolute top-1/4 right-1/4 w-32 h-32 rounded-full border-2 border-dashed
-                flex items-center justify-center text-center transition-all duration-300
-                ${selectedRegion === 'far' ? 'bg-primary/30 border-primary scale-110' : 
-                  budget < sampleCost ? 'border-muted-foreground/30 cursor-not-allowed' :
-                  'border-accent hover:bg-accent/20 hover:border-accent cursor-pointer'}
-              `}
-            >
-              <div className="space-y-1">
-                <MapPin className="w-6 h-6 mx-auto" />
-                <div className="text-xs font-semibold">对照组区域</div>
-                <div className="text-xs">(焚化炉2英里外)</div>
-                <div className="text-xs font-bold">{farSamples.length} 样本</div>
-              </div>
-            </button>
-            
-            {/* Collected Samples Visualization */}
-            {samples.map((sample, index) => (
-              <div
-                key={sample.id}
-                className="absolute w-2 h-2 bg-primary rounded-full animate-bounce-in"
-                style={{
-                  left: `${(sample.x / 800) * 100}%`,
-                  top: `${(sample.y / 400) * 100}%`,
-                  animationDelay: `${index * 0.1}s`
-                }}
-              />
-            ))}
-          </div>
+          <D3Map
+            width={800}
+            height={500}
+            budget={budget}
+            sampleCost={sampleCost}
+            nearSamples={nearSamples}
+            farSamples={farSamples}
+            onHouseClick={handleRegionClick}
+            selectedRegion={selectedRegion}
+          />
           
           {budget < sampleCost && (
             <div className="flex items-center justify-center gap-2 text-warning">
